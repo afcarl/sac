@@ -23,6 +23,7 @@ from sac.envs import (
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
 from sac.policies import LatentSpacePolicy, GMMPolicy
+from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
@@ -84,7 +85,13 @@ def run_experiment(variant):
 
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
 
-    base_kwargs = algorithm_params['base_kwargs']
+    sampler = SimpleSampler(
+        max_path_length=variant['max_path_length'],
+        min_pool_size=variant['max_path_length'],
+        batch_size=variant['batch_size']
+    )
+
+    base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
 
     M = value_fn_params['layer_size']
     qf = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M))
