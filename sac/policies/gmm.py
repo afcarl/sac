@@ -63,7 +63,7 @@ class GMMPolicy(NNPolicy, Serializable):
                 hidden_layers_sizes=self._hidden_layers,
                 Dx=self._Da,
                 cond_t_lst=[obs_t],
-                reg=self._reg
+                reg=self._reg,
             )
 
         return gmm
