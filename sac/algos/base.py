@@ -27,6 +27,7 @@ class RLAlgorithm(Algorithm):
             eval_n_episodes=10,
             eval_deterministic=True,
             eval_render=False,
+            control_interval=1
     ):
         """
         Args:
@@ -45,6 +46,7 @@ class RLAlgorithm(Algorithm):
         self._n_epochs = n_epochs
         self._n_train_repeat = n_train_repeat
         self._epoch_length = epoch_length
+        self._control_interval = control_interval
 
         self._eval_n_episodes = eval_n_episodes
         self._eval_deterministic = eval_deterministic
@@ -57,6 +59,14 @@ class RLAlgorithm(Algorithm):
         self._pool = None
 
     def _train(self, env, policy, pool):
+        """Perform RL training.
+
+        Args:
+            env (`rllab.Env`): Environment used for training
+            policy (`Policy`): Policy used for training
+            pool (`PoolBase`): Sample pool to add samples to
+        """
+
         self._init_training(env, policy, pool)
         self.sampler.initialize(env, policy, pool)
 
@@ -70,6 +80,7 @@ class RLAlgorithm(Algorithm):
                 logger.push_prefix('Epoch #%d | ' % epoch)
 
                 for t in range(self._epoch_length):
+                    # TODO.codeconsolidation: Add control interval to sampler
                     self.sampler.sample()
                     if not self.sampler.batch_ready():
                         continue
@@ -77,7 +88,7 @@ class RLAlgorithm(Algorithm):
 
                     for i in range(self._n_train_repeat):
                         self._do_training(
-                            itr=t + epoch * self._epoch_length,
+                            iteration=t + epoch * self._epoch_length,
                             batch=self.sampler.random_batch())
                     gt.stamp('train')
 
@@ -135,11 +146,12 @@ class RLAlgorithm(Algorithm):
         if self._eval_render:
             self._eval_env.render(paths)
 
+        iteration = epoch*self._epoch_length
         batch = self.sampler.random_batch()
-        self.log_diagnostics(batch)
+        self.log_diagnostics(iteration, batch)
 
     @abc.abstractmethod
-    def log_diagnostics(self, batch):
+    def log_diagnostics(self, iteration, batch):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -147,7 +159,7 @@ class RLAlgorithm(Algorithm):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _do_training(self, itr, batch):
+    def _do_training(self, iteration, batch):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -155,13 +167,16 @@ class RLAlgorithm(Algorithm):
         """Method to be called at the start of training.
 
         :param env: Environment instance.
-        :param policy:  Policy instance.
+        :param policy: Policy instance.
         :return: None
         """
 
         self._env = env
         if self._eval_n_episodes > 0:
-            self._eval_env = deep_clone(env)
+            # TODO: This is horrible. Don't do this. Get rid of this.
+            import tensorflow as tf
+            with tf.variable_scope("low_level_policy", reuse=False):
+                self._eval_env = deep_clone(env)
         self._policy = policy
         self._pool = pool
 
