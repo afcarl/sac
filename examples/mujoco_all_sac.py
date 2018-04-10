@@ -77,6 +77,7 @@ def run_experiment(variant):
     value_fn_params = variant['value_fn_params']
     algorithm_params = variant['algorithm_params']
     replay_buffer_params = variant['replay_buffer_params']
+    sampler_params = variant['sampler_params']
 
     task = variant['task']
     domain = variant['domain']
@@ -85,11 +86,7 @@ def run_experiment(variant):
 
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
 
-    sampler = SimpleSampler(
-        max_path_length=variant['max_path_length'],
-        min_pool_size=variant['max_path_length'],
-        batch_size=variant['batch_size']
-    )
+    sampler = SimpleSampler(**sampler_params)
 
     base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
 
