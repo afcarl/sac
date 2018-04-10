@@ -135,9 +135,8 @@ class RLAlgorithm(Algorithm):
         if self._eval_render:
             self._eval_env.render(paths)
 
-        if self.sampler.batch_ready():
-            batch = self.sampler.random_batch()
-            self.log_diagnostics(batch)
+        batch = self.sampler.random_batch()
+        self.log_diagnostics(batch)
 
     @abc.abstractmethod
     def log_diagnostics(self, batch):
