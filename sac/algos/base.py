@@ -29,6 +29,7 @@ class RLAlgorithm(Algorithm):
             eval_n_episodes=10,
             eval_deterministic=True,
             eval_render=False,
+            control_interval=1
     ):
         """
         Args:
@@ -56,6 +57,7 @@ class RLAlgorithm(Algorithm):
         self._epoch_length = epoch_length
         self._min_pool_size = min_pool_size
         self._max_path_length = max_path_length
+        self._control_interval = control_interval
 
         self._eval_n_episodes = eval_n_episodes
         self._eval_deterministic = eval_deterministic
@@ -95,13 +97,20 @@ class RLAlgorithm(Algorithm):
                                       save_itrs=True):
                 logger.push_prefix('Epoch #%d | ' % epoch)
 
-                for t in range(self._epoch_length):
+                num_steps = int(np.ceil(self._epoch_length/self._control_interval))
+                for t in range(num_steps):
                     iteration = t + epoch * self._epoch_length
 
                     action, _ = policy.get_action(observation)
-                    next_ob, reward, terminal, info = env.step(action)
-                    path_length += 1
-                    path_return += reward
+
+                    for i in range(self._control_interval):
+                        next_ob, reward, terminal, info = env.step(action)
+
+                        path_length += 1
+                        path_return += reward
+
+                        if terminal or path_length >= self._max_path_length:
+                            break
 
                     self._pool.add_sample(
                         observation,
@@ -188,11 +197,12 @@ class RLAlgorithm(Algorithm):
         if self._eval_render:
             self._eval_env.render(paths)
 
+        iteration = epoch*self._epoch_length
         batch = self._pool.random_batch(self._batch_size)
-        self.log_diagnostics(batch)
+        self.log_diagnostics(iteration, batch)
 
     @abc.abstractmethod
-    def log_diagnostics(self, batch):
+    def log_diagnostics(self, iteration, batch):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -214,7 +224,10 @@ class RLAlgorithm(Algorithm):
 
         self._env = env
         if self._eval_n_episodes > 0:
-            self._eval_env = deep_clone(env)
+            # TODO: This is horrible. Don't do this. Get rid of this.
+            import tensorflow as tf
+            with tf.variable_scope("low_level_policy", reuse=False):
+                self._eval_env = deep_clone(env)
         self._policy = policy
         self._pool = pool
 

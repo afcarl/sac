@@ -67,7 +67,6 @@ class CouplingBijector(ConditionalBijector):
                  parity,
                  translation_fn,
                  scale_fn,
-                 scale_regularization,
                  event_ndims=0,
                  validate_args=False,
                  name="coupling_bijector"):
@@ -91,7 +90,6 @@ class CouplingBijector(ConditionalBijector):
         self.parity = parity
         self.translation_fn = translation_fn
         self.scale_fn = scale_fn
-        self.scale_regularization = scale_regularization
 
         super().__init__(event_ndims=event_ndims,
                          validate_args=validate_args,
@@ -128,11 +126,6 @@ class CouplingBijector(ConditionalBijector):
         # exp(s(b*x)) in paper
         exp_scale = tf.check_numerics(
             tf.exp(scale), "tf.exp(scale) contains NaNs or infs")
-
-        if condition_kwargs.get('regularize', False):
-            tf.add_to_collection(
-                tf.GraphKeys.REGULARIZATION_LOSSES,
-                self.scale_regularization * tf.reduce_mean(exp_scale))
 
         # y_{d+1:D} = x_{d+1:D} * exp(s(x_{1:d})) + t(x_{1:d})
         part_1 = masked_x
@@ -201,10 +194,6 @@ class CouplingBijector(ConditionalBijector):
                                               non_masked_y.shape[-1])
 
         exp_scale = tf.exp(-scale)
-        if condition_kwargs.get('regularize', False):
-            tf.add_to_collection(
-                tf.GraphKeys.REGULARIZATION_LOSSES,
-                self.scale_regularization * tf.reduce_mean(exp_scale))
 
         # y_{d+1:D} = (y_{d+1:D} - t(y_{1:d})) * exp(-s(y_{1:d}))
         part_1 = masked_y
@@ -264,7 +253,6 @@ class RealNVPBijector(ConditionalBijector):
                  num_coupling_layers=2,
                  translation_hidden_sizes=(25,),
                  scale_hidden_sizes=(25,),
-                 scale_regularization=0,
                  event_ndims=0,
                  validate_args=False,
                  name="real_nvp"):
@@ -288,7 +276,6 @@ class RealNVPBijector(ConditionalBijector):
         self._num_coupling_layers = num_coupling_layers
         self._translation_hidden_sizes = tuple(translation_hidden_sizes)
         self._scale_hidden_sizes = tuple(scale_hidden_sizes)
-        self._scale_regularization = scale_regularization
 
         self.build()
 
@@ -320,8 +307,7 @@ class RealNVPBijector(ConditionalBijector):
                 parity=('even', 'odd')[i % 2],
                 name="coupling_{i}".format(i=i),
                 translation_fn=translation_wrapper,
-                scale_fn=scale_wrapper,
-                scale_regularization=self._scale_regularization)
+                scale_fn=scale_wrapper)
             for i in range(1, num_coupling_layers + 1)
         ]
 
