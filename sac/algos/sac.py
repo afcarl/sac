@@ -87,6 +87,7 @@ class SAC(RLAlgorithm, Serializable):
             tau=0.01,
             target_update_interval=1,
             action_prior='uniform',
+            reparameterize=False,
 
             save_full_state=False,
     ):
@@ -129,6 +130,7 @@ class SAC(RLAlgorithm, Serializable):
         self._tau = tau
         self._target_update_interval = target_update_interval
         self._action_prior = action_prior
+        self._reparameterize = reparameterize
 
         self._save_full_state = save_full_state
 
@@ -270,8 +272,11 @@ class SAC(RLAlgorithm, Serializable):
         log_target = self._qf.get_output_for(
             self._observations_ph, actions, reuse=True)  # N
 
-        policy_kl_loss = tf.reduce_mean(log_pi * tf.stop_gradient(
-            log_pi - log_target + self._vf_t - policy_prior_log_probs))
+        if self._reparameterize:
+            policy_kl_loss = tf.reduce_mean(log_pi - log_target + self._vf_t)
+        else:
+            policy_kl_loss = tf.reduce_mean(log_pi * tf.stop_gradient(
+                log_pi - log_target + self._vf_t - policy_prior_log_probs))
 
         policy_regularization_losses = tf.get_collection(
             tf.GraphKeys.REGULARIZATION_LOSSES,
@@ -285,7 +290,7 @@ class SAC(RLAlgorithm, Serializable):
         self._vf_loss_t = 0.5 * tf.reduce_mean((
           self._vf_t
           - tf.stop_gradient(log_target - log_pi + policy_prior_log_probs)
-        )**2)
+        )**2) # shouldn't need to stop gradient anyways, since only trains vf
 
         policy_train_op = tf.train.AdamOptimizer(self._policy_lr).minimize(
             loss=policy_loss,
