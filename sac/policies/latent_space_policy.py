@@ -86,7 +86,6 @@ class LatentSpacePolicy(NNPolicy, Serializable):
                 raw_actions = self.distribution.sample(
                     N, bijector_kwargs={"condition": conditions})
 
-            # Not stopping gradients here, use reparameterization type instead
             if not self._reparameterize:
                 raw_actions = tf.stop_gradient(raw_actions)
 
