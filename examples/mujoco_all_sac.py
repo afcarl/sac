@@ -7,9 +7,10 @@ import numpy as np
 from rllab.envs.normalized_env import normalize
 from rllab.envs.mujoco.gather.ant_gather_env import AntGatherEnv
 from rllab.envs.mujoco.swimmer_env import SwimmerEnv
-from rllab.envs.mujoco.ant_env import AntEnv
+# from rllab.envs.mujoco.ant_env import AntEnv
 from rllab.envs.mujoco.humanoid_env import HumanoidEnv
 from rllab.misc.instrument import VariantGenerator
+from rllab import config
 
 from sac.algos import SAC
 from sac.envs import (
@@ -27,7 +28,10 @@ from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
-from examples.variants import parse_domain_and_task, get_variants
+from examples.aurick_variants import parse_domain_and_task, get_variants
+
+config.DOCKER_IMAGE = "haarnoja/sac"  # needs psutils
+config.AWS_IMAGE_ID = "ami-a3a8b3da"  # with docker already pulled
 
 REPARAMETERIZE = True
 ENVIRONMENTS = {
@@ -36,7 +40,7 @@ ENVIRONMENTS = {
         'multi-direction': MultiDirectionSwimmerEnv,
     },
     'ant': {
-        'default': AntEnv,
+        'default': lambda: normalize(GymEnv('Ant-v1')),
         'multi-direction': MultiDirectionAntEnv,
         'cross-maze': CrossMazeAntEnv
     },
