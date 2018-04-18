@@ -47,6 +47,7 @@ class LatentSpacePolicy(NNPolicy, Serializable):
         self._squash = squash
         self._reparameterization_type = tf.distributions.FULLY_REPARAMETERIZED \
                 if reparameterize else tf.distributions.NOT_REPARAMETERIZED
+        self._reparameterize = reparameterize
         self._fix_h_on_reset = fix_h_on_reset
         self._q_function = q_function
         self._n_map_action_candidates=n_map_action_candidates
@@ -86,7 +87,8 @@ class LatentSpacePolicy(NNPolicy, Serializable):
                     N, bijector_kwargs={"condition": conditions})
 
             # Not stopping gradients here, use reparameterization type instead
-            # raw_actions = tf.stop_gradient(raw_actions)
+            if not self._reparameterize:
+                raw_actions = tf.stop_gradient(raw_actions)
 
         actions = tf.tanh(raw_actions) if self._squash else raw_actions
 
@@ -133,7 +135,7 @@ class LatentSpacePolicy(NNPolicy, Serializable):
         self.distribution = ds.ConditionalTransformedDistribution(
             distribution=self.base_distribution,
             bijector=self.bijector,
-            reparameterization_type=self._reparameterization_type,
+            # reparameterization_type=self._reparameterization_type,
             name="lsp_distribution")
 
         self._observations_ph = tf.placeholder(

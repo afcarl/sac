@@ -12,9 +12,11 @@ from rllab.envs.mujoco.humanoid_env import HumanoidEnv
 from rllab.misc.instrument import VariantGenerator
 
 from sac.algos import SAC
+"""
 from sac.envs import (
     RandomGoalSwimmerEnv, RandomGoalAntEnv, RandomGoalHumanoidEnv,
     HierarchyProxyEnv)
+"""
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp
 from sac.policies import LatentSpacePolicy
@@ -236,11 +238,13 @@ def load_low_level_policy(policy_path):
 
     return policy
 
+"""
 RANDOM_GOAL_ENVS = {
     'swimmer': RandomGoalSwimmerEnv,
     'ant': RandomGoalAntEnv,
     'humanoid': RandomGoalHumanoidEnv,
 }
+"""
 
 RLLAB_ENVS = {
     'ant-rllab': AntEnv,
