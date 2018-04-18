@@ -5,15 +5,13 @@ import tensorflow as tf
 import numpy as np
 
 from rllab.envs.normalized_env import normalize
-# from rllab.envs.mujoco.gather.ant_gather_env import AntGatherEnv
+from rllab.envs.mujoco.gather.ant_gather_env import AntGatherEnv
 from rllab.envs.mujoco.swimmer_env import SwimmerEnv
-# from rllab.envs.mujoco.ant_env import AntEnv
-# from rllab.envs.mujoco.humanoid_env import HumanoidEnv
+from rllab.envs.mujoco.ant_env import AntEnv
+from rllab.envs.mujoco.humanoid_env import HumanoidEnv
 from rllab.misc.instrument import VariantGenerator
-from rllab import config
 
 from sac.algos import SAC
-"""
 from sac.envs import (
     GymEnv,
     MultiDirectionSwimmerEnv,
@@ -21,9 +19,6 @@ from sac.envs import (
     MultiDirectionHumanoidEnv,
     CrossMazeAntEnv,
 )
-"""
-config.DOCKER_IMAGE = "haarnoja/sac"  # needs psutils
-config.AWS_IMAGE_ID = "ami-a3a8b3da"  # with docker already pulled
 
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
@@ -34,18 +29,35 @@ from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
 from examples.variants import parse_domain_and_task, get_variants
 
+REPARAMETERIZE = True
 ENVIRONMENTS = {
     'swimmer': {
         'default': SwimmerEnv,
-        # 'multi-direction': MultiDirectionSwimmerEnv,
+        'multi-direction': MultiDirectionSwimmerEnv,
+    },
+    'ant': {
+        'default': AntEnv,
+        'multi-direction': MultiDirectionAntEnv,
+        'cross-maze': CrossMazeAntEnv
+    },
+    'humanoid': {
+        'default': HumanoidEnv,
+        'multi-direction': MultiDirectionHumanoidEnv,
+    },
+    'hopper': {
+        'default': lambda: normalize(GymEnv('Hopper-v1'))
+    },
+    'half-cheetah': {
+        'default': lambda: normalize(GymEnv('HalfCheetah-v1'))
+    },
+    'walker': {
+        'default': lambda: normalize(GymEnv('Walker2d-v1'))
     },
 }
 
 DEFAULT_DOMAIN = DEFAULT_ENV = 'swimmer'
 AVAILABLE_DOMAINS = set(ENVIRONMENTS.keys())
 AVAILABLE_TASKS = set(y for x in ENVIRONMENTS.values() for y in x.keys())
-
-REPARAMETERIZE = True
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -122,7 +134,8 @@ def run_experiment(variant):
             env_spec=env.spec,
             squash=policy_params['squash'],
             bijector_config=bijector_config,
-            reparameterize=REPARAMETERIZE, # policy_params['reparameterize'], q_function=qf,
+            reparameterize=REPARAMETERIZE,
+            q_function=qf,
             observations_preprocessor=observations_preprocessor)
     elif policy_params['type'] == 'gmm':
         policy = GMMPolicy(
@@ -187,7 +200,6 @@ def launch_experiments(variant_generator, args):
             snapshot_gap=run_params['snapshot_gap'],
             sync_s3_pkl=run_params['sync_pkl'],
         )
-        return
 
 
 def main():
