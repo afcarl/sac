@@ -12,7 +12,8 @@ from rllab.envs.mujoco.humanoid_env import HumanoidEnv
 from rllab.misc.instrument import VariantGenerator
 from rllab import config
 
-from sac.algos import SAC
+# from sac.algos import SAC
+from sac.algos.sac_min_q_vf import SAC
 from sac.envs import (
     GymEnv,
     MultiDirectionSwimmerEnv,
@@ -105,7 +106,8 @@ def run_experiment(variant):
     base_kwargs = dict(algorithm_params['base_kwargs'], sampler=sampler)
 
     M = value_fn_params['layer_size']
-    qf = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M))
+    qf1 = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M), name='qf1')
+    qf2 = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M), name='qf2')
     vf = NNVFunction(env_spec=env.spec, hidden_layer_sizes=(M, M))
 
     if policy_params['type'] == 'lsp':
@@ -139,7 +141,7 @@ def run_experiment(variant):
             squash=policy_params['squash'],
             bijector_config=bijector_config,
             reparameterize=REPARAMETERIZE,
-            q_function=qf,
+            q_function=qf1,
             observations_preprocessor=observations_preprocessor)
     elif policy_params['type'] == 'gmm':
         policy = GMMPolicy(
@@ -157,7 +159,8 @@ def run_experiment(variant):
         env=env,
         policy=policy,
         pool=pool,
-        qf=qf,
+        qf1=qf1,
+        qf2=qf2,
         vf=vf,
         lr=algorithm_params['lr'],
         scale_reward=algorithm_params['scale_reward'],
