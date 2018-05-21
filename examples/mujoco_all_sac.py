@@ -13,6 +13,7 @@ from rllab.misc.instrument import VariantGenerator
 from rllab import config
 
 # from sac.algos import SAC
+# move these into main SAC
 from sac.algos.sac_min_q_vf import SAC
 from sac.envs import (
     GymEnv,
@@ -29,12 +30,12 @@ from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
 from sac.preprocessors import MLPPreprocessor
-from examples.aurick_variants import parse_domain_and_task, get_variants
+from examples.variants import parse_domain_and_task, get_variants
 
+# remove these for published version
 config.DOCKER_IMAGE = "haarnoja/sac"  # needs psutils
 config.AWS_IMAGE_ID = "ami-a3a8b3da"  # with docker already pulled
 
-REPARAMETERIZE = True
 ENVIRONMENTS = {
     'swimmer': {
         'default': SwimmerEnv,
@@ -140,7 +141,7 @@ def run_experiment(variant):
             env_spec=env.spec,
             squash=policy_params['squash'],
             bijector_config=bijector_config,
-            reparameterize=REPARAMETERIZE,
+            reparameterize=policy_params['reparameterize'],
             q_function=qf1,
             observations_preprocessor=observations_preprocessor)
     elif policy_params['type'] == 'gmm':
@@ -166,7 +167,7 @@ def run_experiment(variant):
         scale_reward=algorithm_params['scale_reward'],
         discount=algorithm_params['discount'],
         tau=algorithm_params['tau'],
-        reparameterize=REPARAMETERIZE,
+        reparameterize=algorithm_params['reparameterize'],
         target_update_interval=algorithm_params['target_update_interval'],
         action_prior=policy_params['action_prior'],
         save_full_state=False,

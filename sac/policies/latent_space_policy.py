@@ -45,8 +45,6 @@ class LatentSpacePolicy(NNPolicy, Serializable):
         self._bijector_config = bijector_config
         self._mode = mode
         self._squash = squash
-        self._reparameterization_type = tf.distributions.FULLY_REPARAMETERIZED \
-                if reparameterize else tf.distributions.NOT_REPARAMETERIZED
         self._reparameterize = reparameterize
         self._fix_h_on_reset = fix_h_on_reset
         self._q_function = q_function
@@ -134,7 +132,6 @@ class LatentSpacePolicy(NNPolicy, Serializable):
         self.distribution = ds.ConditionalTransformedDistribution(
             distribution=self.base_distribution,
             bijector=self.bijector,
-            # reparameterization_type=self._reparameterization_type,
             name="lsp_distribution")
 
         self._observations_ph = tf.placeholder(
