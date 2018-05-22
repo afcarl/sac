@@ -46,6 +46,7 @@ class RLAlgorithm(Algorithm):
         self._n_epochs = n_epochs
         self._n_train_repeat = n_train_repeat
         self._epoch_length = epoch_length
+        self._n_initial_exploration_steps = initial_exploration_steps
         self._control_interval = control_interval
 
         self._eval_n_episodes = eval_n_episodes
@@ -58,7 +59,7 @@ class RLAlgorithm(Algorithm):
         self._policy = None
         self._pool = None
 
-    def _train(self, env, policy, pool):
+    def _train(self, env, policy, initial_exploration_policy, pool):
         """Perform RL training.
 
         Args:
@@ -68,7 +69,7 @@ class RLAlgorithm(Algorithm):
         """
 
         self._init_training(env, policy, pool)
-        self.sampler.initialize(env, policy, pool)
+        self.sampler.initialize(env, inital_exploration_policy, pool)
 
         with self._sess.as_default():
             gt.rename_root('RLAlgorithm')
@@ -81,6 +82,8 @@ class RLAlgorithm(Algorithm):
 
                 for t in range(self._epoch_length):
                     # TODO.codeconsolidation: Add control interval to sampler
+                    if self._epoch_length * epoch >= self._n_initial_exploration_steps:
+                        self.sampler.set_policy(policy)
                     self.sampler.sample()
                     if not self.sampler.batch_ready():
                         continue
