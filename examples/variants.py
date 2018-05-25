@@ -46,7 +46,7 @@ LSP_POLICY_PARAMS = {
 
 GMM_POLICY_PARAMS_BASE = {
     'type': 'gmm',
-    'K': 4,
+    'K': 1,
     'reg': 1e-3,
     'action_prior': 'uniform',
     'reparameterize': REPARAMETERIZE
@@ -80,7 +80,6 @@ POLICY_PARAMS = {
 
 VALUE_FUNCTION_PARAMS = {
     'layer_size': M,
-
 }
 
 ENV_DOMAIN_PARAMS = {
@@ -139,15 +138,16 @@ ENV_PARAMS = {
 }
 
 ALGORITHM_PARAMS_BASE = {
-    'lr': [3e-4],
+    'lr': 3e-4,
     'discount': 0.99,
-    'target_update_interval': 1,
-    'tau': 1e-3,
+    'target_update_interval': 1000,
+    'tau': 1,
     'reparameterize': REPARAMETERIZE,
 
     'base_kwargs': {
         'epoch_length': 1000,
         'n_train_repeat': 1,
+        'n_initial_exploration_steps': 1000,
         'eval_render': False,
         'eval_n_episodes': 1,
         'eval_deterministic': True,
@@ -162,7 +162,7 @@ ALGORITHM_PARAMS = {
         }
     },
     'hopper': { # 3 DoF
-        'scale_reward': [1,3,5,10],
+        'scale_reward': [1,3,5],
         'base_kwargs': {
             'n_epochs': int(3e3 + 1),
         }
@@ -171,6 +171,7 @@ ALGORITHM_PARAMS = {
         'scale_reward': [1,3,5],
         'base_kwargs': {
             'n_epochs': int(1e4 + 1),
+            'n_initial_exploration_steps': 10000,
         }
     },
     'walker': { # 6 DoF
@@ -183,9 +184,16 @@ ALGORITHM_PARAMS = {
         'scale_reward': [3,5,10],
         'base_kwargs': {
             'n_epochs': int(1e4 + 1),
+            'n_initial_exploration_steps': 10000,
         }
     },
     'humanoid': { # 21 DoF
+        'scale_reward': [3,5,10,20],
+        'base_kwargs': {
+            'n_epochs': int(2e4 + 1),
+        }
+    },
+    'humanoid-rllab': { # ? DoF
         'scale_reward': [3,5,10,20],
         'base_kwargs': {
             'n_epochs': int(2e4 + 1),

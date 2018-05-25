@@ -78,6 +78,7 @@ class SAC(RLAlgorithm, Serializable):
             policy,
             qf1,
             qf2,
+            initial_exploration_policy,
             vf,
             pool,
             plotter=None,
@@ -118,6 +119,7 @@ class SAC(RLAlgorithm, Serializable):
 
         self._env = env
         self._policy = policy
+        self._initial_exploration_policy = initial_exploration_policy
         self._qf1 = qf1
         self._qf2 = qf2
         self._vf = vf
@@ -155,7 +157,7 @@ class SAC(RLAlgorithm, Serializable):
     def train(self):
         """Initiate training of the SAC instance."""
 
-        self._train(self._env, self._policy, self._pool)
+        self._train(self._env, self._policy, self._initial_exploration_policy, self._pool)
 
     def _init_placeholders(self):
         """Create input placeholders for the SAC algorithm.

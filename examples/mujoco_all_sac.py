@@ -23,7 +23,7 @@ from sac.envs import (
 
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
-from sac.policies import LatentSpacePolicy, GMMPolicy
+from sac.policies import LatentSpacePolicy, GMMPolicy, UniformPolicy
 from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
@@ -45,6 +45,9 @@ ENVIRONMENTS = {
         'cross-maze': CrossMazeAntEnv
     },
     'humanoid': {
+        'default': lambda: normalize(GymEnv('Humanoid-v1'))
+    },
+    'humanoid-rllab': {
         'default': HumanoidEnv,
         'multi-direction': MultiDirectionHumanoidEnv,
     },
@@ -96,7 +99,7 @@ def run_experiment(variant):
     task = variant['task']
     domain = variant['domain']
 
-    env = normalize(ENVIRONMENTS[domain][task](**env_params))
+    env = normalize(ENVIRONMENTS[domain][task](**env_params)) # normalized twice?
 
     pool = SimpleReplayBuffer(env_spec=env.spec, **replay_buffer_params)
 
@@ -108,6 +111,8 @@ def run_experiment(variant):
     qf1 = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M), name='qf1')
     qf2 = NNQFunction(env_spec=env.spec, hidden_layer_sizes=(M, M), name='qf2')
     vf = NNVFunction(env_spec=env.spec, hidden_layer_sizes=(M, M))
+
+    initial_exploration_policy = UniformPolicy(env_spec=env.spec)
 
     if policy_params['type'] == 'lsp':
         nonlinearity = {
@@ -157,6 +162,7 @@ def run_experiment(variant):
         base_kwargs=base_kwargs,
         env=env,
         policy=policy,
+        initial_exploration_policy=initial_exploration_policy,
         pool=pool,
         qf1=qf1,
         qf2=qf2,
