@@ -12,9 +12,7 @@ from rllab.envs.mujoco.humanoid_env import HumanoidEnv
 from rllab.misc.instrument import VariantGenerator
 from rllab import config
 
-# from sac.algos import SAC
-# move these into main SAC
-from sac.algos.sac_min_q_vf import SAC
+from sac.algos import SAC
 from sac.envs import (
     GymEnv,
     MultiDirectionSwimmerEnv,
