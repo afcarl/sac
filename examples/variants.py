@@ -170,20 +170,20 @@ ALGORITHM_PARAMS = {
     'half-cheetah': { # 6 DoF
         'scale_reward': [1,3,5],
         'base_kwargs': {
-            'n_epochs': int(1e4 + 1),
+            'n_epochs': int(3e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },
     'walker': { # 6 DoF
         'scale_reward': [3,5,10],
         'base_kwargs': {
-            'n_epochs': int(5e3 + 1),
+            'n_epochs': int(3e3 + 1),
         }
     },
     'ant': { # 8 DoF
-        'scale_reward': [3,5,10],
+        'scale_reward': [5,10],
         'base_kwargs': {
-            'n_epochs': int(1e4 + 1),
+            'n_epochs': int(3e3 + 1),
             'n_initial_exploration_steps': 10000,
         }
     },

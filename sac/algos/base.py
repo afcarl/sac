@@ -76,7 +76,7 @@ class RLAlgorithm(Algorithm):
             self.sampler.initialize(env, policy, pool)
             initial_exploration_done = True
         else:
-            self.sampler.initialize(env, inital_exploration_policy, pool)
+            self.sampler.initialize(env, initial_exploration_policy, pool)
             initial_exploration_done = False 
 
         with self._sess.as_default():

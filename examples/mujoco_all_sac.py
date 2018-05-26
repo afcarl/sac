@@ -152,7 +152,7 @@ def run_experiment(variant):
             env_spec=env.spec,
             K=policy_params['K'],
             hidden_layer_sizes=(M, M),
-            qf=qf,
+            qf=qf1,
             reg=1e-3,
         )
     else:
@@ -194,7 +194,7 @@ def launch_experiments(variant_generator, args):
         print("Experiment: {}/{}".format(i, num_experiments))
         run_params = variant['run_params']
 
-        experiment_prefix = variant['prefix'] + '/' + args.exp_name
+        experiment_prefix = 'sac_camera_ready/' + variant['prefix'] + '/' + args.exp_name
         experiment_name = '{prefix}-{exp_name}-{i:02}'.format(
             prefix=variant['prefix'], exp_name=args.exp_name, i=i)
 
