@@ -38,7 +38,11 @@ LSP_POLICY_PARAMS = {
         'preprocessing_hidden_sizes': (M, M, 16),
         's_t_units': 8,
     },
-    'humanoid': { # 21 DoF, change this if using gym humanoid
+    'humanoid-gym': { # 17 DoF, change this if using gym humanoid
+        'preprocessing_hidden_sizes': (M, M, 34),
+        's_t_units': 17,
+    },
+    'humanoid-rllab': { # 21 DoF 
         'preprocessing_hidden_sizes': (M, M, 42),
         's_t_units': 21,
     }
@@ -63,7 +67,9 @@ GMM_POLICY_PARAMS = {
     },
     'ant': { # 8 DoF
     },
-    'humanoid': { # 21 DoF
+    'humanoid-gym': { # 17 DoF
+    },
+    'humanoid-rllab': { # 21 DoF
     }
 }
 
@@ -93,7 +99,9 @@ ENV_DOMAIN_PARAMS = {
     },
     'ant': { # 8 DoF
     },
-    'humanoid': { # 21 DoF
+    'humanoid-gym': { # 17 DoF
+    },
+    'humanoid-rllab': { # 21 DoF
     }
 }
 
@@ -128,13 +136,15 @@ ENV_PARAMS = {
             'pre_trained_policy_path': []
         },
     },
-    'humanoid': { # 21 DoF
+    'humanoid-gym': { # 21 DoF
         'resume-training': {
             'low_level_policy_path': [
                 # 'humanoid-low-level-policy-00-00/itr_4000.pkl',
             ]
         }
-    }
+    },
+    'humanoid-rllab': {
+    },
 }
 
 ALGORITHM_PARAMS_BASE = {
@@ -187,7 +197,7 @@ ALGORITHM_PARAMS = {
             'n_initial_exploration_steps': 10000,
         }
     },
-    'humanoid': { # 21 DoF
+    'humanoid-gym': { # 21 DoF
         'scale_reward': [3,5,10,20],
         'base_kwargs': {
             'n_epochs': int(2e4 + 1),
@@ -225,7 +235,8 @@ DOMAINS = [
     'half-cheetah', # 6 DoF
     'walker', # 6 DoF
     'ant', # 8 DoF
-    'humanoid', # 21 DoF # add gym_humanoid
+    'humanoid-gym', # 17 DoF # gym_humanoid
+    'humanoid-rllab', # 21 DoF 
 ]
 
 TASKS = {
@@ -248,7 +259,10 @@ TASKS = {
         'cross-maze'
 
     ],
-    'humanoid': [
+    'humanoid-gym': [
+        'default',
+    ],
+    'humanoid-rllab': [
         'default',
         'multi-direction'
     ],
