@@ -204,7 +204,7 @@ ALGORITHM_PARAMS = {
         }
     },
     'humanoid-rllab': { # ? DoF
-        'scale_reward': [3,5,10,20],
+        'scale_reward': [5,10,20,40],
         'base_kwargs': {
             'n_epochs': int(2e4 + 1),
         }
