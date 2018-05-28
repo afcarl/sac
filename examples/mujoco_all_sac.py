@@ -35,7 +35,10 @@ config.DOCKER_IMAGE = "haarnoja/sac"  # needs psutils
 config.AWS_IMAGE_ID = "ami-a3a8b3da"  # with docker already pulled
 
 ENVIRONMENTS = {
-    'swimmer': {
+    'swimmer-gym': {
+        'default': lambda: normalize(GymEnv('Swimmer-v1')),
+    },
+    'swimmer-rllab': {
         'default': SwimmerEnv,
         'multi-direction': MultiDirectionSwimmerEnv,
     },
