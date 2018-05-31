@@ -75,8 +75,6 @@ class GMM(object):
         mu_t = w_and_mu_and_logsig_t[..., 1:1+Dx]
         log_sig_t = w_and_mu_and_logsig_t[..., 1+Dx:]
 
-        # log_sig_t = tf.minimum(log_sig_t, LOG_SIG_CAP_MAX)
-        # log_sig_t = tf.maximum(log_sig_t, LOG_SIG_CAP_MIN)
         log_sig_t = tf.clip_by_value(log_sig_t, LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX)
 
         return log_w_t, mu_t, log_sig_t
