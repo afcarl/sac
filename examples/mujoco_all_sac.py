@@ -63,6 +63,9 @@ ENVIRONMENTS = {
     'walker': {
         'default': lambda: normalize(GymEnv('Walker2d-v1'))
     },
+    'humanoid-standup-gym': {
+        'default': lambda: normalize(GymEnv('HumanoidStandup-v1'))
+    }
 }
 
 DEFAULT_DOMAIN = DEFAULT_ENV = 'swimmer'
