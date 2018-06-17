@@ -23,7 +23,7 @@ from sac.envs import (
 
 from sac.misc.instrument import run_sac_experiment
 from sac.misc.utils import timestamp, unflatten
-from sac.policies import LatentSpacePolicy, GMMPolicy, UniformPolicy
+from sac.policies import GaussianPolicy, LatentSpacePolicy, GMMPolicy, UniformPolicy
 from sac.misc.sampler import SimpleSampler
 from sac.replay_buffers import SimpleReplayBuffer
 from sac.value_functions import NNQFunction, NNVFunction
@@ -84,8 +84,8 @@ def parse_args():
                         default='default')
     parser.add_argument('--policy',
                         type=str,
-                        choices=('lsp', 'gmm'),
-                        default='gmm')
+                        choices=('lsp', 'gmm', 'gaussian'),
+                        default='gaussian')
     parser.add_argument('--env', type=str, default=DEFAULT_ENV)
     parser.add_argument('--exp_name', type=str, default=timestamp())
     parser.add_argument('--mode', type=str, default='local')
@@ -120,7 +120,14 @@ def run_experiment(variant):
 
     initial_exploration_policy = UniformPolicy(env_spec=env.spec)
 
-    if policy_params['type'] == 'lsp':
+    if policy_params['type'] == 'gaussian':
+        policy = GaussianPolicy(
+                env_spec=env.spec,
+                hidden_layer_sizes=(M,M),
+                reparameterize=policy_params['reparameterize'],
+                reg=1e-3,
+        )
+    elif policy_params['type'] == 'lsp':
         nonlinearity = {
             None: None,
             'relu': tf.nn.relu,
@@ -154,6 +161,7 @@ def run_experiment(variant):
             q_function=qf1,
             observations_preprocessor=observations_preprocessor)
     elif policy_params['type'] == 'gmm':
+        # disallow reparameterization for GMMPolicies
         policy = GMMPolicy(
             env_spec=env.spec,
             K=policy_params['K'],
@@ -220,6 +228,7 @@ def launch_experiments(variant_generator, args):
             snapshot_gap=run_params['snapshot_gap'],
             sync_s3_pkl=run_params['sync_pkl'],
         )
+        return
 
 
 def main():
