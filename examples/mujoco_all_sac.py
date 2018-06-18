@@ -228,7 +228,6 @@ def launch_experiments(variant_generator, args):
             snapshot_gap=run_params['snapshot_gap'],
             sync_s3_pkl=run_params['sync_pkl'],
         )
-        return
 
 
 def main():
