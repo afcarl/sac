@@ -174,14 +174,14 @@ ENV_PARAMS = {
             'pre_trained_policy_path': []
         },
     },
-    'humanoid-gym': { # 21 DoF
+    'humanoid-gym': { # 17 DoF
         'resume-training': {
             'low_level_policy_path': [
                 # 'humanoid-low-level-policy-00-00/itr_4000.pkl',
             ]
         }
     },
-    'humanoid-rllab': {
+    'humanoid-rllab': { # 21 DOF
     },
     'humanoid-standup-gym': { # 17 DoF
     },
@@ -237,19 +237,19 @@ ALGORITHM_PARAMS = {
             'n_initial_exploration_steps': 10000,
         }
     },
-    'humanoid-gym': { # 21 DoF
+    'humanoid-gym': { # 17 DoF
         'scale_reward': 20,
         'base_kwargs': {
             'n_epochs': int(1e4 + 1),
         }
     },
-    'humanoid-rllab': { # ? DoF
+    'humanoid-rllab': { # 21 DoF
         'scale_reward': 10,
         'base_kwargs': {
             'n_epochs': int(1e4 + 1),
         }
     },
-    'humanoid-standup-gym': { # 21 DoF
+    'humanoid-standup-gym': { # 17 DoF
         'scale_reward': 100,
         'base_kwargs': {
             'n_epochs': int(1e4 + 1),
@@ -267,11 +267,32 @@ SAMPLER_PARAMS = {
     'batch_size': 256,
 }
 
-RUN_PARAMS = {
-    'seed': [1 + 10*i for i in range(3)],
-    'snapshot_mode': 'last',
+RUN_PARAMS_BASE = {
+    'seed': [1,2,3,4,5],
+    'snapshot_mode': 'gap',
     'snapshot_gap': 1000,
     'sync_pkl': True,
+}
+
+RUN_PARAMS = {
+    'swimmer': { # 2 DoF
+        'snapshot_gap': 200
+    },
+    'hopper': { # 3 DoF
+        'snapshot_gap': 600
+    },
+    'half-cheetah': { # 6 DoF
+        'snapshot_gap': 2000
+    },
+    'walker': { # 6 DoF
+        'snapshot_gap': 1000
+    },
+    'ant': { # 8 DoF
+        'snapshot_gap': 2000
+    },
+    'humanoid': { # 21 DoF
+        'snapshot_gap': 4000
+    }
 }
 
 
@@ -340,7 +361,7 @@ def get_variants(domain, task, policy):
         ),
         'replay_buffer_params': REPLAY_BUFFER_PARAMS,
         'sampler_params': SAMPLER_PARAMS,
-        'run_params': RUN_PARAMS,
+        'run_params': deep_update(RUN_PARAMS_BASE, RUN_PARAMS[domain]),
     }
 
     # TODO: Remove flatten. Our variant generator should support nested params
