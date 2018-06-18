@@ -1,4 +1,4 @@
-""" Normal distribution with mean and std deviation outputted by a neural net """
+""" Multivariate normal distribution with mean and std deviation outputted by a neural net """
 
 import tensorflow as tf
 import numpy as np
@@ -54,7 +54,7 @@ class Normal(object):
         self._mu_t = mu_and_logsig_t[..., :Dx]
         self._log_sig_t = tf.clip_by_value(mu_and_logsig_t[..., Dx:], LOG_SIG_CAP_MIN, LOG_SIG_CAP_MAX)
 
-        # Tensorflow's normal distribution supports reparameterization by default
+        # Tensorflow's multivariate normal distribution supports reparameterization
         ds = tf.contrib.distributions
         dist = ds.MultivariateNormalDiag(loc=self._mu_t, scale_diag=tf.exp(self._log_sig_t))
         x_t = dist.sample()
@@ -71,9 +71,6 @@ class Normal(object):
         self._reg_loss_t = reg_loss_t
 
 
-    # Returns tensor containing log probs for specified actions conditioned on the observations
-    def log_pi_for(self, actions_ph):
-        return self._dist.log_prob(actions_ph)
 
     @property
     def log_p_t(self):

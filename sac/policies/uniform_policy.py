@@ -7,22 +7,25 @@ import numpy as np
 
 
 class UniformPolicy(Policy, Serializable):
+    """
+    Fixed policy that randomly samples actions uniformly at random.
+
+    Used for an initial exploration period instead of an undertrained policy.
+    """
     def __init__(self, env_spec):
         Serializable.quick_init(self, locals())
         self._Da = env_spec.action_space.flat_dim
 
         super(UniformPolicy, self).__init__(env_spec)
 
+    # Assumes action spaces are normalized to be the interval [-1, 1]
     @overrides
     def get_action(self, observation):
-        return np.random.uniform(-1., 1., self._Da), None # random from -1 to 1, which is same as what is squashed
+        return np.random.uniform(-1., 1., self._Da), None 
 
     @overrides
     def get_actions(self, observations):
-        return # don't need this
-        feeds = {self._obs_pl: observations}
-        actions = tf.get_default_session().run(self._action, feeds)
-        return actions
+        pass 
 
     @overrides
     def log_diagnostics(self, paths):
